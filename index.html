@@ -30,23 +30,11 @@
     z-index:2;
   }
 
-  h1{
-    margin:0 0 10px;
-    transition:0.25s;
-  }
-
-  .sub{
-    margin:0 0 14px;
-    opacity:0.85;
-    min-height:22px;
-  }
+  h1{ margin:0 0 10px; }
+  .sub{ margin:0 0 14px; opacity:0.85; min-height:22px; }
 
   /* Flip container */
-  .flipWrap{
-    width:min(280px, 72vw);
-    margin:0 auto;
-    perspective: 900px;
-  }
+  .flipWrap{ width:min(280px, 72vw); margin:0 auto; perspective: 900px; }
   .flipCard{
     width:100%;
     aspect-ratio: 1 / 1;
@@ -55,27 +43,18 @@
     transition:transform 650ms cubic-bezier(.2,.9,.2,1);
     border-radius:18px;
   }
-  .flipCard.is-flipped{
-    transform: rotateY(180deg);
-  }
+  .flipCard.is-flipped{ transform: rotateY(180deg); }
+
   .face{
-    position:absolute;
-    inset:0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
     backface-visibility:hidden;
     border-radius:18px;
     background: rgba(0,0,0,0.03);
     padding:12px;
   }
 
-  .cat{
-    width:100%;
-    height:100%;
-    object-fit:contain;
-    border-radius:16px;
-  }
+  .cat{ width:100%; height:100%; object-fit:contain; border-radius:16px; }
 
   /* Back face (QR) */
   .back{
@@ -86,13 +65,8 @@
     padding:14px;
     text-align:center;
   }
-  .qrTitle{
-    font-weight:800;
-  }
-  .qrHint{
-    font-size:13px;
-    opacity:0.85;
-  }
+  .qrTitle{ font-weight:800; }
+  .qrHint{ font-size:13px; opacity:0.85; }
   .qrImg{
     width:min(220px, 60vw);
     height:auto;
@@ -119,20 +93,11 @@
     transition:transform 0.2s;
     user-select:none;
     -webkit-tap-highlight-color: transparent;
-    touch-action:manipulation;
+    touch-action:manipulation; /* helps mobile */
   }
 
-  #yes{
-    background:#28c76f;
-    color:white;
-    transform-origin:center;
-  }
-
-  #no{
-    background:#ff4d4d;
-    color:white;
-    position:relative;
-  }
+  #yes{ background:#28c76f; color:white; transform-origin:center; }
+  #no{ background:#ff4d4d; color:white; position:relative; }
 
   #clickMe{
     background:#111827;
@@ -140,7 +105,6 @@
     padding:12px 20px;
     font-size:16px;
   }
-
   #downloadQR{
     background:#2563eb;
     color:white;
@@ -179,9 +143,7 @@
     60% { transform: scale(1.06); }
     100% { transform: scale(1.03); }
   }
-  body.zoomed {
-    animation: screenZoom 550ms ease forwards;
-  }
+  body.zoomed { animation: screenZoom 550ms ease forwards; }
 
   /* Confetti */
   .confetti{
@@ -205,33 +167,28 @@
 <body>
 
 <div class="card">
-  <!-- These exist initially; we will hide them ONLY when QR is shown -->
   <h1 id="question">Will you be my Valentine? 💖</h1>
   <p class="sub" id="subtext">Please say yes… 🥺</p>
 
   <div class="flipWrap">
     <div class="flipCard" id="flipCard">
-      <!-- FRONT (cat gif) -->
       <div class="face front">
         <img class="cat" id="catGif" src="begging-cat.gif" alt="Cat GIF">
       </div>
 
-      <!-- BACK (QR) -->
       <div class="face back">
         <div class="qrTitle">Scan me 💘</div>
-        <div class="qrHint">(💘💘💘)</div>
+        <div class="qrHint">(Open your surprise folder)</div>
         <img class="qrImg" id="qrImg" alt="QR Code">
         <button id="downloadQR" type="button">Download QR</button>
       </div>
     </div>
 
-    <!-- Appears after YES -->
     <div class="btnRow" id="afterYesRow" style="display:none; margin-top:14px;">
       <button id="clickMe" type="button">Click Me</button>
     </div>
   </div>
 
-  <!-- YES / NO row -->
   <div class="btnRow" id="btnRow">
     <button id="yes" type="button">Yes 💕</button>
     <button id="no" type="button">No 😏</button>
@@ -251,12 +208,10 @@
     "😔😔😔"
   ];
 
-  // Local GIFs (same folder as index.html)
   const GIF_BEG  = "begging-cat.gif";
   const GIF_SAD  = "cat-sad.gif";
   const GIF_LOVE = "cat-love.gif";
 
-  // ✅ Google Drive link for QR
   const QR_TARGET_URL = "https://drive.google.com/drive/folders/1BruGvgBloLcZeQFSGLxVmGY7xCDgODaM?usp=sharing";
 
   const yesBtn   = document.getElementById("yes");
@@ -276,22 +231,16 @@
   let scale = 1;
   let accepted = false;
 
-  const SAD_AT = 2;        // after 2 NO clicks -> sad cat stays
-  const RUN_AWAY_AT = 3;   // after 3 NO clicks -> shake+move
+  const SAD_AT = 2;
+  const RUN_AWAY_AT = 3;
+
+  // Prevent double-trigger on mobile (touchstart + click)
+  let touchJustFired = false;
 
   function randomPhrase(){
     return phrases[Math.floor(Math.random()*phrases.length)];
   }
 
-  function shakeThenMove(){
-    noBtn.classList.add("shake");
-    setTimeout(() => {
-      noBtn.classList.remove("shake");
-      moveNo();
-    }, 350);
-  }
-
-  // Keep NO inside visible bounds
   function moveNo(){
     const padding = 20;
     const rect = noBtn.getBoundingClientRect();
@@ -303,75 +252,70 @@
     noBtn.style.top  = (Math.random() * maxY + padding/2) + "px";
   }
 
-  // NO click
-  noBtn.addEventListener("click", (e)=>{
-    e.preventDefault();
+  function shakeThenMove(){
+    noBtn.classList.add("shake");
+    setTimeout(() => {
+      noBtn.classList.remove("shake");
+      moveNo();
+    }, 350);
+  }
+
+  // ✅ Single source of truth: NO was pressed
+  function handleNoPress(){
     if(accepted) return;
 
     noClicks++;
     subtext.textContent = randomPhrase();
 
-    // Grow YES
     scale += 0.3;
     yesBtn.style.transform = `scale(${scale})`;
 
-    // Cat swap logic
-    if(noClicks >= SAD_AT){
-      catGif.src = GIF_SAD;
-    } else {
-      catGif.src = GIF_BEG;
-    }
+    if(noClicks >= SAD_AT) catGif.src = GIF_SAD;
+    else catGif.src = GIF_BEG;
 
-    // Run away + shake
-    if(noClicks >= RUN_AWAY_AT){
-      shakeThenMove();
-    }
+    if(noClicks >= RUN_AWAY_AT) shakeThenMove();
+  }
+
+  // Desktop click
+  noBtn.addEventListener("click", (e)=>{
+    e.preventDefault();
+    if(touchJustFired) return; // ignore the ghost click after touch
+    handleNoPress();
   });
 
-  // Mobile: NO reacts on touch too once in run mode
-  noBtn.addEventListener("touchstart", (e) => {
-    if(accepted) return;
-    if(noClicks >= RUN_AWAY_AT){
-      e.preventDefault();
-      shakeThenMove();
-    }
+  // Mobile touch (this ensures it ALWAYS updates text)
+  noBtn.addEventListener("touchstart", (e)=>{
+    e.preventDefault();
+    touchJustFired = true;
+    handleNoPress();
+    setTimeout(()=>{ touchJustFired = false; }, 350);
   }, { passive:false });
 
   // YES click
   yesBtn.addEventListener("click", ()=>{
     accepted = true;
 
-    // Screen zoom + confetti
     document.body.classList.add("zoomed");
     confettiBurst(100);
 
-    // Update UI
     question.textContent = "YAYYYYY 💘🥹💘";
     subtext.textContent = "Okay… you’re officially my Valentine 😘";
     catGif.src = GIF_LOVE;
 
-    // Remove Yes/No buttons so you see the animation
     btnRow.style.display = "none";
-
-    // Show Click Me button
     afterYesRow.style.display = "flex";
 
-    // Generate QR from Drive link
     const qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=700x700&data=" + encodeURIComponent(QR_TARGET_URL);
     qrImg.src = qrUrl;
   });
 
-  // Click Me flips to QR AND hides the YAY + Valentine text while QR is shown
   clickMeBtn.addEventListener("click", ()=>{
     flipCard.classList.add("is-flipped");
     afterYesRow.style.display = "none";
-
-    // Hide headline/subtitle ONLY while QR is displayed
     question.style.display = "none";
     subtext.style.display = "none";
   });
 
-  // Download QR button
   downloadQR.addEventListener("click", async ()=>{
     try{
       const res = await fetch(qrImg.src, { mode: "cors" });
@@ -391,7 +335,7 @@
     }
   });
 
-  // Floating hearts
+  // Hearts
   function createHeart(){
     const heart = document.createElement("div");
     heart.className = "heart";
@@ -403,19 +347,17 @@
   }
   setInterval(createHeart, 400);
 
-  // Confetti burst
+  // Confetti
   function confettiBurst(count = 90){
     for(let i=0;i<count;i++){
       const c = document.createElement("div");
       c.className = "confetti";
       const hue = Math.floor(Math.random()*360);
       c.style.background = `hsl(${hue} 90% 60%)`;
-
       c.style.left = (Math.random()*100) + "vw";
       c.style.animationDuration = (900 + Math.random()*900) + "ms";
       c.style.width = (6 + Math.random()*8) + "px";
       c.style.height = (8 + Math.random()*12) + "px";
-
       document.body.appendChild(c);
       setTimeout(()=>c.remove(), 1800);
     }
