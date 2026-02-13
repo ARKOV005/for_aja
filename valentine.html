@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Will You Be My Valentine? 💘</title>
+
+<style>
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:linear-gradient(to bottom right,#ff9eb5,#ffccd5);
+  font-family:Arial, sans-serif;
+  overflow:hidden;
+}
+
+.card{
+  background:white;
+  padding:40px;
+  border-radius:25px;
+  text-align:center;
+  box-shadow:0 20px 40px rgba(0,0,0,0.2);
+  position:relative;
+}
+
+h1{
+  margin-bottom:20px;
+}
+
+.cat{
+  width:220px;
+  margin-bottom:20px;
+  border-radius:15px;
+}
+
+button{
+  padding:15px 25px;
+  font-size:18px;
+  border:none;
+  border-radius:50px;
+  margin:10px;
+  cursor:pointer;
+  transition:0.2s;
+}
+
+#yes{
+  background:#28c76f;
+  color:white;
+}
+
+#no{
+  background:#ff4d4d;
+  color:white;
+  position:relative;
+}
+
+/* Floating Hearts */
+.heart{
+  position:fixed;
+  font-size:22px;
+  animation:float 4s linear infinite;
+  pointer-events:none;
+}
+
+@keyframes float{
+  0%{
+    transform:translateY(100vh) scale(0.5);
+    opacity:0;
+  }
+  20%{opacity:1;}
+  100%{
+    transform:translateY(-10vh) scale(1.3);
+    opacity:0;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <h1>Will you be my Valentine? 💖</h1>
+
+  <!-- LOCAL GIF FILE -->
+  <img class="cat" src="begging-cat-cat.gif" alt="Begging Cat">
+
+  <br>
+
+  <button id="yes">Yes 💕</button>
+  <button id="no">No 😏</button>
+</div>
+
+<script>
+let yesBtn = document.getElementById("yes");
+let noBtn = document.getElementById("no");
+let scale = 1;
+let noClicks = 0;
+
+/* YES grows */
+noBtn.addEventListener("click", function(){
+  noClicks++;
+  scale += 0.3;
+  yesBtn.style.transform = "scale(" + scale + ")";
+
+  if(noClicks >= 5){
+    noBtn.style.position = "absolute";
+  }
+});
+
+/* NO runs away */
+noBtn.addEventListener("mouseover", function(){
+  if(noClicks >= 5){
+    let x = Math.random() * (window.innerWidth - 120);
+    let y = Math.random() * (window.innerHeight - 60);
+    noBtn.style.left = x + "px";
+    noBtn.style.top = y + "px";
+  }
+});
+
+/* YES clicked */
+yesBtn.addEventListener("click", function(){
+  document.querySelector("h1").innerText = "YAYYYYY 💘🥹💘";
+  noBtn.style.display = "none";
+});
+
+/* Floating hearts generator */
+function createHeart(){
+  let heart = document.createElement("div");
+  heart.className = "heart";
+  heart.innerHTML = "💖";
+  heart.style.left = Math.random() * 100 + "vw";
+  heart.style.animationDuration = (Math.random() * 2 + 3) + "s";
+  document.body.appendChild(heart);
+
+  setTimeout(()=>{
+    heart.remove();
+  },4000);
+}
+
+setInterval(createHeart, 400);
+</script>
+
+</body>
+</html>

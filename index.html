@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Will You Be My Valentine? 💘</title>
+
+<style>
+  body{
+    margin:0;
+    min-height:100svh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(to bottom right,#ff9eb5,#ffccd5);
+    font-family:Arial, sans-serif;
+    overflow:hidden;
+    padding:16px;
+    transform-origin:center;
+  }
+
+  .card{
+    background:white;
+    padding:28px 22px;
+    border-radius:25px;
+    text-align:center;
+    box-shadow:0 20px 40px rgba(0,0,0,0.2);
+    width:min(560px, 92vw);
+    position:relative;
+    z-index:2;
+  }
+
+  h1{
+    margin:0 0 10px;
+    transition:0.25s;
+  }
+
+  .sub{
+    margin:0 0 14px;
+    opacity:0.85;
+    min-height:22px;
+  }
+
+  /* Flip container */
+  .flipWrap{
+    width:min(280px, 72vw);
+    margin:0 auto;
+    perspective: 900px;
+  }
+  .flipCard{
+    width:100%;
+    aspect-ratio: 1 / 1;
+    position:relative;
+    transform-style:preserve-3d;
+    transition:transform 650ms cubic-bezier(.2,.9,.2,1);
+    border-radius:18px;
+  }
+  .flipCard.is-flipped{
+    transform: rotateY(180deg);
+  }
+  .face{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    backface-visibility:hidden;
+    border-radius:18px;
+    background: rgba(0,0,0,0.03);
+    padding:12px;
+  }
+
+  .cat{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    border-radius:16px;
+  }
+
+  /* Back face (QR) */
+  .back{
+    transform: rotateY(180deg);
+    flex-direction:column;
+    gap:10px;
+    background: rgba(255, 240, 245, 0.75);
+    padding:14px;
+    text-align:center;
+  }
+  .qrTitle{
+    font-weight:800;
+  }
+  .qrHint{
+    font-size:13px;
+    opacity:0.85;
+  }
+  .qrImg{
+    width:min(220px, 60vw);
+    height:auto;
+    border-radius:12px;
+    background:white;
+    padding:10px;
+    box-shadow:0 10px 22px rgba(0,0,0,0.08);
+  }
+
+  .btnRow{
+    display:flex;
+    justify-content:center;
+    gap:12px;
+    margin-top:12px;
+    flex-wrap:wrap;
+  }
+
+  button{
+    padding:14px 22px;
+    font-size:18px;
+    border:none;
+    border-radius:999px;
+    cursor:pointer;
+    transition:transform 0.2s;
+    user-select:none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action:manipulation;
+  }
+
+  #yes{
+    background:#28c76f;
+    color:white;
+    transform-origin:center;
+  }
+
+  #no{
+    background:#ff4d4d;
+    color:white;
+    position:relative;
+  }
+
+  #clickMe{
+    background:#111827;
+    color:white;
+    padding:12px 20px;
+    font-size:16px;
+  }
+
+  #downloadQR{
+    background:#2563eb;
+    color:white;
+    padding:12px 18px;
+    font-size:15px;
+  }
+
+  /* Shake */
+  @keyframes shake {
+    0% { transform: translate(0px, 0px); }
+    20% { transform: translate(-4px, 2px); }
+    40% { transform: translate(4px, -2px); }
+    60% { transform: translate(-4px, 2px); }
+    80% { transform: translate(4px, -2px); }
+    100% { transform: translate(0px, 0px); }
+  }
+  .shake { animation: shake 0.35s ease; }
+
+  /* Floating hearts */
+  .heart{
+    position:fixed;
+    font-size:22px;
+    animation:float 4s linear infinite;
+    pointer-events:none;
+    z-index:1;
+  }
+  @keyframes float{
+    0%{ transform:translateY(110svh) scale(0.5); opacity:0; }
+    20%{ opacity:1; }
+    100%{ transform:translateY(-15svh) scale(1.3); opacity:0; }
+  }
+
+  /* Screen zoom */
+  @keyframes screenZoom {
+    0% { transform: scale(1); }
+    60% { transform: scale(1.06); }
+    100% { transform: scale(1.03); }
+  }
+  body.zoomed {
+    animation: screenZoom 550ms ease forwards;
+  }
+
+  /* Confetti */
+  .confetti{
+    position:fixed;
+    top:-12px;
+    width:10px;
+    height:14px;
+    border-radius:2px;
+    opacity:0.95;
+    pointer-events:none;
+    z-index:3;
+    animation: confettiFall 1200ms linear forwards;
+  }
+  @keyframes confettiFall{
+    0% { transform: translateY(-20px) rotate(0deg); }
+    100% { transform: translateY(110svh) rotate(720deg); }
+  }
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <!-- These exist initially; we will hide them ONLY when QR is shown -->
+  <h1 id="question">Will you be my Valentine? 💖</h1>
+  <p class="sub" id="subtext">Please say yes… 🥺</p>
+
+  <div class="flipWrap">
+    <div class="flipCard" id="flipCard">
+      <!-- FRONT (cat gif) -->
+      <div class="face front">
+        <img class="cat" id="catGif" src="begging-cat.gif" alt="Cat GIF">
+      </div>
+
+      <!-- BACK (QR) -->
+      <div class="face back">
+        <div class="qrTitle">Scan me 💘</div>
+        <div class="qrHint">(💘💘💘)</div>
+        <img class="qrImg" id="qrImg" alt="QR Code">
+        <button id="downloadQR" type="button">Download QR</button>
+      </div>
+    </div>
+
+    <!-- Appears after YES -->
+    <div class="btnRow" id="afterYesRow" style="display:none; margin-top:14px;">
+      <button id="clickMe" type="button">Click Me</button>
+    </div>
+  </div>
+
+  <!-- YES / NO row -->
+  <div class="btnRow" id="btnRow">
+    <button id="yes" type="button">Yes 💕</button>
+    <button id="no" type="button">No 😏</button>
+  </div>
+</div>
+
+<script>
+  // ✅ Your phrases exactly
+  const phrases = [
+    "Awts... Seryoso ka ba?",
+    "Huhuhuhu sad face",
+    "Yes kana lang kasi",
+    "DIMO NAKO LAB? HUHUHU",
+    "PRESS YES",
+    "Grabe ka naman 😭",
+    "Ang sheketsheket 💔",
+    "😔😔😔"
+  ];
+
+  // Local GIFs (same folder as index.html)
+  const GIF_BEG  = "begging-cat.gif";
+  const GIF_SAD  = "cat-sad.gif";
+  const GIF_LOVE = "cat-love.gif";
+
+  // ✅ Google Drive link for QR
+  const QR_TARGET_URL = "https://drive.google.com/drive/folders/1BruGvgBloLcZeQFSGLxVmGY7xCDgODaM?usp=sharing";
+
+  const yesBtn   = document.getElementById("yes");
+  const noBtn    = document.getElementById("no");
+  const catGif   = document.getElementById("catGif");
+  const question = document.getElementById("question");
+  const subtext  = document.getElementById("subtext");
+  const btnRow   = document.getElementById("btnRow");
+
+  const afterYesRow = document.getElementById("afterYesRow");
+  const clickMeBtn  = document.getElementById("clickMe");
+  const flipCard    = document.getElementById("flipCard");
+  const qrImg       = document.getElementById("qrImg");
+  const downloadQR  = document.getElementById("downloadQR");
+
+  let noClicks = 0;
+  let scale = 1;
+  let accepted = false;
+
+  const SAD_AT = 2;        // after 2 NO clicks -> sad cat stays
+  const RUN_AWAY_AT = 3;   // after 3 NO clicks -> shake+move
+
+  function randomPhrase(){
+    return phrases[Math.floor(Math.random()*phrases.length)];
+  }
+
+  function shakeThenMove(){
+    noBtn.classList.add("shake");
+    setTimeout(() => {
+      noBtn.classList.remove("shake");
+      moveNo();
+    }, 350);
+  }
+
+  // Keep NO inside visible bounds
+  function moveNo(){
+    const padding = 20;
+    const rect = noBtn.getBoundingClientRect();
+    const maxX = Math.max(0, window.innerWidth - rect.width - padding);
+    const maxY = Math.max(0, window.innerHeight - rect.height - padding);
+
+    noBtn.style.position = "fixed";
+    noBtn.style.left = (Math.random() * maxX + padding/2) + "px";
+    noBtn.style.top  = (Math.random() * maxY + padding/2) + "px";
+  }
+
+  // NO click
+  noBtn.addEventListener("click", (e)=>{
+    e.preventDefault();
+    if(accepted) return;
+
+    noClicks++;
+    subtext.textContent = randomPhrase();
+
+    // Grow YES
+    scale += 0.3;
+    yesBtn.style.transform = `scale(${scale})`;
+
+    // Cat swap logic
+    if(noClicks >= SAD_AT){
+      catGif.src = GIF_SAD;
+    } else {
+      catGif.src = GIF_BEG;
+    }
+
+    // Run away + shake
+    if(noClicks >= RUN_AWAY_AT){
+      shakeThenMove();
+    }
+  });
+
+  // Mobile: NO reacts on touch too once in run mode
+  noBtn.addEventListener("touchstart", (e) => {
+    if(accepted) return;
+    if(noClicks >= RUN_AWAY_AT){
+      e.preventDefault();
+      shakeThenMove();
+    }
+  }, { passive:false });
+
+  // YES click
+  yesBtn.addEventListener("click", ()=>{
+    accepted = true;
+
+    // Screen zoom + confetti
+    document.body.classList.add("zoomed");
+    confettiBurst(100);
+
+    // Update UI
+    question.textContent = "YAYYYYY 💘🥹💘";
+    subtext.textContent = "Okay… you’re officially my Valentine 😘";
+    catGif.src = GIF_LOVE;
+
+    // Remove Yes/No buttons so you see the animation
+    btnRow.style.display = "none";
+
+    // Show Click Me button
+    afterYesRow.style.display = "flex";
+
+    // Generate QR from Drive link
+    const qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=700x700&data=" + encodeURIComponent(QR_TARGET_URL);
+    qrImg.src = qrUrl;
+  });
+
+  // Click Me flips to QR AND hides the YAY + Valentine text while QR is shown
+  clickMeBtn.addEventListener("click", ()=>{
+    flipCard.classList.add("is-flipped");
+    afterYesRow.style.display = "none";
+
+    // Hide headline/subtitle ONLY while QR is displayed
+    question.style.display = "none";
+    subtext.style.display = "none";
+  });
+
+  // Download QR button
+  downloadQR.addEventListener("click", async ()=>{
+    try{
+      const res = await fetch(qrImg.src, { mode: "cors" });
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "valentine-qr.png";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      setTimeout(()=>URL.revokeObjectURL(url), 1500);
+    } catch(err){
+      alert("If download is blocked, long-press the QR image to save it 🙂");
+    }
+  });
+
+  // Floating hearts
+  function createHeart(){
+    const heart = document.createElement("div");
+    heart.className = "heart";
+    heart.textContent = "💖";
+    heart.style.left = Math.random() * 100 + "vw";
+    heart.style.animationDuration = (Math.random() * 2 + 3) + "s";
+    document.body.appendChild(heart);
+    setTimeout(()=>heart.remove(), 4200);
+  }
+  setInterval(createHeart, 400);
+
+  // Confetti burst
+  function confettiBurst(count = 90){
+    for(let i=0;i<count;i++){
+      const c = document.createElement("div");
+      c.className = "confetti";
+      const hue = Math.floor(Math.random()*360);
+      c.style.background = `hsl(${hue} 90% 60%)`;
+
+      c.style.left = (Math.random()*100) + "vw";
+      c.style.animationDuration = (900 + Math.random()*900) + "ms";
+      c.style.width = (6 + Math.random()*8) + "px";
+      c.style.height = (8 + Math.random()*12) + "px";
+
+      document.body.appendChild(c);
+      setTimeout(()=>c.remove(), 1800);
+    }
+  }
+</script>
+
+</body>
+</html>
