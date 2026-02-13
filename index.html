@@ -178,7 +178,7 @@
 
       <div class="face back">
         <div class="qrTitle">Scan me 💘</div>
-        <div class="qrHint">(Open your surprise folder)</div>
+        <div class="qrHint">(OPEN)</div>
         <img class="qrImg" id="qrImg" alt="QR Code">
         <button id="downloadQR" type="button">Download QR</button>
       </div>
@@ -283,7 +283,7 @@
     handleNoPress();
   });
 
-  // Mobile touch (this ensures it ALWAYS updates text)
+  // Mobile touch phrase RNG
   noBtn.addEventListener("touchstart", (e)=>{
     e.preventDefault();
     touchJustFired = true;
@@ -291,7 +291,7 @@
     setTimeout(()=>{ touchJustFired = false; }, 350);
   }, { passive:false });
 
-  // YES click
+  // YES
   yesBtn.addEventListener("click", ()=>{
     accepted = true;
 
@@ -299,7 +299,7 @@
     confettiBurst(100);
 
     question.textContent = "YAYYYYY 💘🥹💘";
-    subtext.textContent = "Okay… you’re officially my Valentine 😘";
+    subtext.textContent = "Ayieee. LABYUUUU 😘";
     catGif.src = GIF_LOVE;
 
     btnRow.style.display = "none";
@@ -366,4 +366,5 @@
 
 </body>
 </html>
+
 
